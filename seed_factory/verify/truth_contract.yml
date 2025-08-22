@@ -1,0 +1,18 @@
+physics:
+  sources:
+    allowed_domains: ["nasa.gov","nist.gov","openstax.org","arxiv.org"]
+    recency_years: 50
+  units:
+    canonical: ["volt","ampere","ohm","newton","joule","meter","second"]
+  numeric_tolerance:
+    default_pct: 2.0
+  citations:
+    min_span_match_pct: 95
+psychology:
+  sources:
+    allowed_domains: ["apa.org","openstax.org","plato.stanford.edu"]
+    recency_years: 20
+  units:
+    canonical: ["probability","proportion","score","effect_size"]
+  citations:
+    min_span_match_pct: 95
