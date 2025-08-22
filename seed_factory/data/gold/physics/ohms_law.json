@@ -1,0 +1,33 @@
+{
+  "id": "case_physics_0001",
+  "domain": "physics",
+  "facts": [
+    {"id":"F1","text":"Ohm’s law states that current I through a conductor is proportional to voltage V across it when resistance R is constant (I = V/R).","spans":[{"source_id":"openstax_physics_ch20","start":120,"end":210}]},
+    {"id":"F2","text":"Resistance R is assumed constant over the operating range.","spans":[{"source_id":"openstax_physics_ch20","start":211,"end":260}]}
+  ],
+  "hypothesis": "If R is constant, increasing V causes I to increase proportionally.",
+  "tests": [
+    {"id":"T1","do":"increase V by 10% (R constant)","expect":"I increase","units":{"V":"volt","I":"ampere"}},
+    {"id":"T2","do":"double V (R constant)","expect":"I increase","units":{"V":"volt","I":"ampere"}}
+  ],
+  "results": [
+    {"id":"R1","obs":"When V increased from 5V to 10V, I increased from 0.5A to 1.0A.","value":null,"unit":null,
+     "spans":[{"source_id":"openstax_physics_ch20","start":400,"end":470}]}
+  ],
+  "causal_map": {
+    "nodes": ["V","I","R"],
+    "edges": [{"from":"V","to":"I","type":"increase","sign":"+"}]
+  },
+  "gestalt": {"coherence":"high","dissonance":"low","ambiguity":"low"},
+  "gold_schema": {
+    "schema_id":"OHM_LAW_BASIC",
+    "vars":["V","I","R"],
+    "rules":[
+      {"if":["R constant","V increase"],"then":["I increase"],"citations":["F1","F2","R1"]}
+    ],
+    "assumptions":["temperature range without R drift"],
+    "scope":"Ohmic conductors near room temperature"
+  },
+  "closure_gold": "PASS",
+  "contra_pairs": []
+}
