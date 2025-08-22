@@ -1,59 +1,79 @@
-# seed_factory/utils/json_schema.py
-from pydantic import BaseModel, Field, validator
-from typing import List, Literal, Dict
+from dataclasses import dataclass, field, asdict
+from typing import List, Dict, Literal, Optional
 
 Relation = Literal["increase","decrease","enable","prevent","cause","modulate","equal","greater_than","less_than"]
 
-class Fact(BaseModel):
+@dataclass
+class Fact:
     id: str
     text: str
-    spans: List[Dict] = []         # [{"source_id": "...", "start": 120, "end": 145}]
+    spans: List[Dict] = field(default_factory=list)  # [{source_id,start,end}]
 
-class Test(BaseModel):
+@dataclass
+class Test:
     id: str
-    do: str                         # interventional statement
-    expect: str                     # expected qualitative/quantitative outcome
-    units: Dict[str, str] = {}      # {"V": "volt", "I": "ampere"}
+    do: str
+    expect: str
+    units: Dict[str, str] = field(default_factory=dict)
 
-class Result(BaseModel):
+@dataclass
+class Result:
     id: str
     obs: str
-    value: float | None = None
-    unit: str | None = None
-    spans: List[Dict] = []
+    value: Optional[float] = None
+    unit: Optional[str] = None
+    spans: List[Dict] = field(default_factory=list)
 
-class Edge(BaseModel):
-    frm: str = Field(..., alias="from")
+@dataclass
+class Edge:
+    frm: str  # 'from'
     to: str
     type: Relation
-    sign: Literal["+", "-", "0"] = "+"
+    sign: Literal['+','-','0'] = "+"
 
-class CausalMap(BaseModel):
+@dataclass
+class CausalMap:
     nodes: List[str]
     edges: List[Edge]
 
-class GoldRule(BaseModel):
-    if_: List[str] = Field(..., alias="if")   # e.g., ["V increase", "R constant"]
-    then: List[str]                           # e.g., ["I increase"]
-    citations: List[str]                      # refs like "F1","T2","R3"
+@dataclass
+class GoldRule:
+    if_: List[str]    # key name 'if_' to avoid Python keyword; JSON key will be 'if'
+    then: List[str]
+    citations: List[str]
 
-class GoldSchema(BaseModel):
+@dataclass
+class GoldSchema:
     schema_id: str
     vars: List[str]
     rules: List[GoldRule]
-    assumptions: List[str] = []
+    assumptions: List[str] = field(default_factory=list)
     scope: str = ""
 
-class Case(BaseModel):
+@dataclass
+class Case:
     id: str
     domain: str
-    meta: Dict = {}
-    facts: List[Fact]
-    hypothesis: str
-    tests: List[Test]
-    results: List[Result]
-    causal_map: CausalMap
-    gestalt: Dict = {"coherence": "", "dissonance": "", "ambiguity": ""}
-    gold_schema: GoldSchema
-    closure_gold: Literal["PASS","FAIL"]
-    contra_pairs: List[List[str]] = []   # [["claim_a","claim_b","contradict"]]
+    meta: Dict = field(default_factory=dict)
+    facts: List[Fact] = field(default_factory=list)
+    hypothesis: str = ""
+    tests: List[Test] = field(default_factory=list)
+    results: List[Result] = field(default_factory=list)
+    causal_map: CausalMap = None
+    gestalt: Dict = field(default_factory=lambda: {"coherence":"","dissonance":"","ambiguity":""})
+    gold_schema: GoldSchema = None
+    closure_gold: Literal['PASS','FAIL'] = "FAIL"
+    contra_pairs: List[List[str]] = field(default_factory=list)
+
+def to_json_dict(case: Case) -> Dict:
+    # Convert dataclasses to JSON-friendly dict and map if_ -> 'if'
+    def map_rule(rule: GoldRule) -> Dict:
+        return {"if": rule.if_, "then": rule.then, "citations": rule.citations}
+    d = asdict(case)
+    # fix edges key 'frm' -> 'from', and rules key 'if_' -> 'if'
+    if 'causal_map' in d and d['causal_map']:
+        for e in d['causal_map'].get('edges', []):
+            e['from'] = e.pop('frm', None)
+    if d.get('gold_schema'):
+        d['gold_schema']['rules'] = [map_rule(r) for r in case.gold_schema.rules]
+    return d
