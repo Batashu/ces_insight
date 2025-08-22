@@ -1,0 +1,24 @@
+{
+  "id": "case_psych_0001",
+  "domain": "psychology",
+  "facts": [
+    {"id":"F1","text":"Immediate feedback tends to increase learning speed compared to delayed feedback in skill acquisition tasks.","spans":[{"source_id":"open_edu_psych_ch7","start":300,"end":380}]}
+  ],
+  "hypothesis":"Immediate feedback causes higher learning speed than delayed feedback.",
+  "tests":[
+    {"id":"T1","do":"switch from delayed to immediate feedback","expect":"learning_speed increase","units":{}}
+  ],
+  "results":[
+    {"id":"R1","obs":"Participants receiving immediate feedback reached criterion in fewer trials.","spans":[{"source_id":"open_edu_psych_ch7","start":381,"end":450}]}
+  ],
+  "causal_map":{"nodes":["feedback_immediacy","learning_speed"],"edges":[{"from":"feedback_immediacy","to":"learning_speed","type":"increase","sign":"+"}]},
+  "gestalt":{"coherence":"medium","dissonance":"low","ambiguity":"medium"},
+  "gold_schema":{
+    "schema_id":"IMMEDIATE_FEEDBACK_SPEED",
+    "vars":["feedback_immediacy","learning_speed"],
+    "rules":[{"if":["feedback_immediacy increase"],"then":["learning_speed increase"],"citations":["F1","R1"]}],
+    "assumptions":["task difficulty constant"]
+  },
+  "closure_gold":"PASS",
+  "contra_pairs":[]
+}
